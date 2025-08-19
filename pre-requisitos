@@ -1,0 +1,9 @@
+🧰 Pré-requisitos
+PowerShell 5.1 ou superior
+
+Módulo Microsoft Graph instalado
+
+Permissões adequadas no Microsoft Entra ID
+
+- User.Read.All
+- UserAuthenticationMethod.Read.All
