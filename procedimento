@@ -1,0 +1,54 @@
+
+Instalando o Módulo Microsoft Graph
+
+- Execute o comando abaixo no PowerShell como administrador
+
+Install-Module Microsoft.Graph -Scope CurrentUser
+
+- Autenticação no Microsoft Graph
+
+Execute: Connect-MgGraph -Scopes "User.Read.All", "UserAuthenticationMethod.Read.All"
+
+📁 Estrutura da planilha de entrada
+Crie um arquivo chamado usuarios.csv com a seguinte estrutura:
+
+email
+usuario1@dominio.com
+usuario2@dominio.com
+usuario3@dominio.com
+
+
+🧾 Script PowerShell
+
+# Conectar ao Microsoft Graph
+Connect-MgGraph -Scopes "User.Read.All", "UserAuthenticationMethod.Read.All"
+
+# Ler a planilha de usuários
+$usuarios = Import-Csv -Path "usuarios.csv"
+
+# Lista para armazenar os resultados
+$resultados = @()
+
+foreach ($usuario in $usuarios) {
+    $email = $usuario.email
+    try {
+        $metodos = Get-MgUserAuthenticationMethod -UserId $email
+        $tipos = ($metodos | ForEach-Object { $_.AdditionalProperties["@odata.type"] }) -join ","
+        $linha = [PSCustomObject]@{
+            email = $email
+            metodos = $tipos
+        }
+        $resultados += $linha
+    } catch {
+        $linha = [PSCustomObject]@{
+            email = $email
+            metodos = "Erro ao buscar métodos"
+        }
+        $resultados += $linha
+    }
+}
+
+# Exportar os resultados para CSV
+$resultados | Export-Csv -Path "usuarios_metodos.csv" -NoTypeInformation -Encoding UTF8
+
+Write-Host "✅ Arquivo 'usuarios_metodos.csv' gerado com sucesso."
